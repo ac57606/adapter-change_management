@@ -60,7 +60,7 @@ class ServiceNowAdapter extends EventEmitter {
     this.id = id;
     this.props = adapterProperties;
     // Instantiate an object from the connector.js module and assign it to an object property.
-    this.connector = new ServiceNowConnector({
+   this.connector = new ServiceNowConnector({
       url: this.props.url,
       username: this.props.auth.username,
       password: this.props.auth.password,
@@ -83,7 +83,7 @@ class ServiceNowAdapter extends EventEmitter {
     this.healthcheck();
   }
 
-   /**
+  /**
  * @memberof ServiceNowAdapter
  * @method healthcheck
  * @summary Check ServiceNow Health
@@ -94,7 +94,7 @@ class ServiceNowAdapter extends EventEmitter {
  *   that handles the response.
  */
 healthcheck(callback) {
- this.getRecord((result, error) => {
+  this.getRecord((result, error) => {
    /**
     * For this lab, complete the if else conditional
     * statements that check if an error exists
@@ -102,8 +102,6 @@ healthcheck(callback) {
     * the blocks for each branch.
     */
    if (error) {
-	   this.emitStatus('OFFLINE');
-       log.error('ServiceNow: '+ this.id + 'Instance is unavailable.');
      /**
       * Write this block.
       * If an error was returned, we need to emit OFFLINE.
@@ -116,9 +114,9 @@ healthcheck(callback) {
       * healthcheck(), execute it passing the error seen as an argument
       * for the callback's errorMessage parameter.
       */
+      this.emitOffline();
+      log.error("Error at "+ this.id + " ServiceNow adapter instance : " + JSON.stringify(error));     
    } else {
-	   this.emitStatus('ONLINE');
-       log.info('ServiceNow: Instance is available.');
      /**
       * Write this block.
       * If no runtime problems were detected, emit ONLINE.
@@ -129,9 +127,12 @@ healthcheck(callback) {
       * parameter as an argument for the callback function's
       * responseData parameter.
       */
+      this.emitOnline();
+      log.debug("ServiceNow: getRecord successfully executed and return response : ${result}");
    }
  });
 }
+
   /**
    * @memberof ServiceNowAdapter
    * @method emitOffline
@@ -179,13 +180,7 @@ healthcheck(callback) {
    *   handles the response.
    */
   getRecord(callback) {
-      connector.get();
-    /**
-     * Write the body for this function.
-     * The function is a wrapper for this.connector's get() method.
-     * Note how the object was instantiated in the constructor().
-     * get() takes a callback function.
-     */
+    this.connector.get((data, error) => callback(data, error));
   }
 
   /**
@@ -198,13 +193,7 @@ healthcheck(callback) {
    *   handles the response.
    */
   postRecord(callback) {
-      connector.post();
-    /**
-     * Write the body for this function.
-     * The function is a wrapper for this.connector's post() method.
-     * Note how the object was instantiated in the constructor().
-     * post() takes a callback function.
-     */
+     this.connector.post((data, error) => callback(data, error));
   }
 }
 
